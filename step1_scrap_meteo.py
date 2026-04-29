@@ -81,8 +81,7 @@ if __name__ == "__main__":
     print("\n── Air Quality Data ──")
     print(json.dumps(data, indent=2))
 
-print(data)
-
+"""
 def print_dict_types(d, prefix=""):
     for key, value in d.items():
         key_path = f"{prefix}.{key}" if prefix else key
@@ -90,4 +89,4 @@ def print_dict_types(d, prefix=""):
         if isinstance(value, dict):
             print_dict_types(value, key_path)
 
-print_dict_types(data)
+print_dict_types(data)"""

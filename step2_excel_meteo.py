@@ -46,13 +46,13 @@ def save_to_excel(data: dict) -> str:
 
     row = [
         next_id,
-        data["CITY"],
-        data["COUNTRY"],
-        data["PM10"],
-        data["PM2.5"],
-        data["CO"],
-        data["CO2"],
-        data["CREATED_AT"],
+        data["city"],
+        data["country"],
+        data["air_quality"].get("pm10", [None])[0],
+        data["air_quality"].get("pm2_5", [None])[0],
+        data["air_quality"].get("carbon_monoxide", [None])[0],
+        data["air_quality"].get("carbon_dioxide", [None])[0],
+        data["air_quality"].get("scraped_at", None),
     ]
 
     ws.append(row)
@@ -60,7 +60,7 @@ def save_to_excel(data: dict) -> str:
     return EXCEL_FILE
 
 if __name__ == "__main__":
-    from step1_scrap_meteo import scrap_data
+    from step1_scrap_meteo import fetch_geocode_and_air_quality
 
-    data = scrap_data("Kuala Lumpur")
+    data = fetch_geocode_and_air_quality("Kuala Lumpur")
     file_path = save_to_excel(data)
