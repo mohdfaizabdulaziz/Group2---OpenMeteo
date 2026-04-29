@@ -1,4 +1,4 @@
-name: Weather Report
+name: Air Quality Report
 
 on:
   schedule:
