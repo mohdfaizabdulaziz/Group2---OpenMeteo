@@ -1,3 +1,4 @@
+'''
 import requests
 import json
 from datetime import datetime
@@ -76,7 +77,7 @@ def fetch_geocode_and_air_quality(city: str):
 
 # ── Run this file directly to test ───────────────────────────
 if __name__ == "__main__":
-    city = "Kuala Lumpur"
+    city = "Melaka"
     data = fetch_geocode_and_air_quality(city)
     print("\n── Air Quality Data ──")
     print(json.dumps(data, indent=2))
@@ -89,4 +90,68 @@ def print_dict_types(d, prefix=""):
         if isinstance(value, dict):
             print_dict_types(value, key_path)
 
-print_dict_types(data)"""
+print_dict_types(data)"""'''
+
+import requests
+from datetime import datetime
+
+def geocode_city(city: str, count: int = 1, language: str = "en") -> dict:
+    url = (
+        f"https://geocoding-api.open-meteo.com/v1/search"
+        f"?name={city}&count={count}&language={language}&format=json"
+    )
+    response = requests.get(url, timeout=10)
+    if response.status_code != 200:
+        raise Exception(f"Failed to geocode city. Status code: {response.status_code}")
+    results = response.json().get("results")
+    if not results:
+        raise Exception("No geocoding results found.")
+    location = results[0]
+    return {
+        "name": location["name"],
+        "country": location["country"],
+        "latitude": location["latitude"],
+        "longitude": location["longitude"],
+    }
+
+def fetch_air_quality(lat: float, lon: float, forecast_days: int = 5) -> dict:
+    url = (
+        f"https://air-quality-api.open-meteo.com/v1/air-quality"
+        f"?latitude={lat}&longitude={lon}"
+        f"&hourly=pm10,pm2_5,carbon_monoxide,carbon_dioxide,ozone"
+        f"&past_days=0&forecast_days={forecast_days}"
+    )
+    response = requests.get(url, timeout=10)
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch air quality. Status code: {response.status_code}")
+    data = response.json()
+    hourly = data.get("hourly", {})
+    hours = hourly.get("time", [])[:1]
+    aq_summary = {
+        "hourly_time": hours,
+        "pm10": hourly.get("pm10", [None])[:1],
+        "pm2_5": hourly.get("pm2_5", [None])[:1],
+        "carbon_monoxide": hourly.get("carbon_monoxide", [None])[:1],
+        "carbon_dioxide": hourly.get("carbon_dioxide", [None])[:1],
+        "ozone": hourly.get("ozone", [None])[:1],
+        "scraped_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    return aq_summary
+
+def fetch_geocode_and_air_quality(city: str):
+    location = geocode_city(city)
+    air_quality = fetch_air_quality(location["latitude"], location["longitude"])
+    result = {
+        "city": location["name"],
+        "country": location["country"],
+        "latitude": location["latitude"],
+        "longitude": location["longitude"],
+        "air_quality": air_quality,
+    }
+    return result
+
+# Test: Uncomment this to test standalone
+# if __name__ == "__main__":
+#     city = "Melaka"
+#     data = fetch_geocode_and_air_quality(city)
+#     import json; print(json.dumps(data, indent=2))

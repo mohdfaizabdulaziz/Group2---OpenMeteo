@@ -9,7 +9,7 @@
 #   data        TEXT     - JSON string of all weather fields
 #   created_at  DATETIME - auto set to current timestamp
 # ============================================================
-
+'''
 import sqlite3
 import json
 import os
@@ -117,4 +117,57 @@ if __name__ == "__main__":
 
     print("\n── All Records in DB ──")
     for row in get_all_records():
-        print(f"  [{row['id']}] {row['created_at']} → {row['data'][:60]}...")
+        print(f"  [{row['id']}] {row['created_at']} → {row['data'][:60]}...")'''
+
+import sqlite3
+import json
+
+DB_FILE = "Air_Quality.db"
+
+def get_connection():
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS records (
+            id         INTEGER  PRIMARY KEY AUTOINCREMENT,
+            data       TEXT     NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+    print("[DB] Database initialized. Table 'records' is ready.")
+
+def save_to_db(Air_Quality: dict) -> dict:
+    json_data = json.dumps(Air_Quality)
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO records (data) VALUES (?)",
+        (json_data,)
+    )
+    conn.commit()
+    record_id = cursor.lastrowid
+    cursor.execute("SELECT created_at FROM records WHERE id = ?", (record_id,))
+    row = cursor.fetchone()
+    created_at = row["created_at"]
+    conn.close()
+    print(f"[DB] Saved! Record ID: {record_id} | Created At: {created_at}")
+    return {
+        "id": record_id,
+        "data": Air_Quality,
+        "created_at": created_at,
+    }
+
+def get_all_records():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, data, created_at FROM records ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
