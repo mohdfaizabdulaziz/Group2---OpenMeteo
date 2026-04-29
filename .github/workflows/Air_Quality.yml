@@ -1,15 +1,15 @@
-name: Air Quality Report #boleh ubah apa"
+name: Weather Report
 
 on:
   schedule:
     - cron: "*/5 * * * *"
-  workflow_dispatch: #bila mana kita buka github ada button utk trigger script 
+  workflow_dispatch:
 
 jobs:
   run:
-    runs-on: ubuntu-latest #github guna OS ubuntu
+    runs-on: ubuntu-latest
 
-    steps: #normal steps
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -18,8 +18,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies #bagitahu github utk install
-        run: pip install -r requirements.txt #make sure library update dalam requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Run script
         env:
