@@ -34,7 +34,7 @@ def send_telegram_notification(record: dict) -> bool:
         True if sent successfully, False otherwise
     """
 
-    weather    = record["data"]
+    Air_Quality   = record["data"]
     record_id  = record["id"]
     created_at = record["created_at"]
 
@@ -42,12 +42,12 @@ def send_telegram_notification(record: dict) -> bool:
         f"<b>Air Quality Saved</b>\n"
         f"Record ID : <code>{record_id}</code>\n"
         f"Saved At  : {created_at}\n\n"
-        f"<b>City        :</b> {weather['city']}, {weather['country']}\n"
-        f"<b>Temperature :</b> {weather['temperature_c']}C (Feels like {weather['feels_like_c']}C)\n"
-        f"<b>Condition   :</b> {weather['weather_desc']}\n"
-        f"<b>Humidity    :</b> {weather['humidity_percent']}%\n"
-        f"<b>Wind Speed  :</b> {weather['wind_speed_kmph']} km/h\n\n"
-        f"Excel report saved to: output/weather_report.xlsx"
+        f"<b>City        :</b> {Air_Quality['city']}, {Air_Quality['country']}\n"
+        f"<b>PM10        :</b> {Air_Quality['air_quality'].get('pm10', [None])[0]}\n"
+        f"<b>PM2.5       :</b> {Air_Quality['air_quality'].get('pm2_5', [None])[0]}\n"
+        f"<b>CO          :</b> {Air_Quality['air_quality'].get('carbon_monoxide', [None])[0]}\n"
+        f"<b>CO2         :</b> {Air_Quality['air_quality'].get('carbon_dioxide', [None])[0]}\n\n"
+        f"Excel report saved to: output/Air_Quality.xlsx"
     )
 
     payload = {
@@ -79,13 +79,13 @@ if __name__ == "__main__":
         "data": {
             "city": "KualaLumpur",
             "country": "Malaysia",
-            "temperature_c": 32,
-            "feels_like_c": 38,
-            "humidity_percent": 80,
-            "wind_speed_kmph": 15,
-            "weather_desc": "Partly Cloudy",
-            "visibility_km": 10,
-            "scraped_at": "2025-01-15 10:30:00",
+            "air_quality": {
+                "pm10": [45.0],
+                "pm2_5": [25.0],
+                "carbon_monoxide": [0.5],
+                "carbon_dioxide": [400.0],
+                "scraped_at": "2025-01-15 10:30:00",
+            }
         }
     }
     send_telegram_notification(test_record)
