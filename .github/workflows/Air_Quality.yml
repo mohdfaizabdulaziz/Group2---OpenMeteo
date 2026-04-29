@@ -1,0 +1,28 @@
+name: Air Quality Report #boleh ubah apa"
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: #bila mana kita buka github ada button utk trigger script 
+
+jobs:
+  run:
+    runs-on: ubuntu-latest #github guna OS ubuntu
+
+    steps: #normal steps
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies #bagitahu github utk install
+        run: pip install -r requirements.txt #make sure library update dalam requirements.txt
+
+      - name: Run script
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
