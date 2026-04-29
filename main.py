@@ -6,26 +6,27 @@ from tkinter import messagebox
 from step1_scrap_meteo import fetch_geocode_and_air_quality
 from step2_excel_meteo import save_to_excel
 from step3_db_meteo import init_db, save_to_db
-# Optionally import further steps, e.g. Telegram, Email
+from step4_telegram_meteo import send_telegram_notification
 
 def run_pipeline(city: str):
-    """Run the pipeline: fetch data, save to Excel & DB, print status."""
     print("=" * 55)
     print("  Python Automation Pipeline")
     print("=" * 55)
-    # ── STEP 1: Scrape ──
+    # STEP 1
     print("\n[STEP 1] Fetching air quality data...")
     data = fetch_geocode_and_air_quality(city)
     print("[INFO] Data fetched for:", city)
-    # ── STEP 2: Excel ──
+    # STEP 2
     print("\n[STEP 2] Saving to Excel...")
     excel_path = save_to_excel(data)
     print("[INFO] Saved to Excel:", excel_path)
-    # ── STEP 3: Database ──
+    # STEP 3
     print("\n[STEP 3] Storing in database...")
     init_db()
     record = save_to_db(data)
-    # Add further steps here if needed
+    # STEP 4
+    print("\n[STEP 4] Sending Telegram notification...")
+    telegram_ok = send_telegram_notification(record)
     print("\n" + "=" * 55)
     print("  Pipeline Complete!")
     print("=" * 55)
@@ -38,16 +39,16 @@ def run_pipeline(city: str):
     print(f"  Record ID  : {record['id']}")
     print(f"  Saved At   : {record['created_at']}")
     print(f"  Excel File : {excel_path}")
+    print(f"  Telegram   : {'Sent' if telegram_ok else 'Failed'}")
     print("=" * 55)
-    # Return record for further notification, if needed
-    return data, record, excel_path
+    return data, record, excel_path, telegram_ok
 
 def run_all_gui(city: str):
     try:
-        data, record, excel_path = run_pipeline(city)
+        data, record, excel_path, telegram_ok = run_pipeline(city)
         messagebox.showinfo(
             "Success",
-            f"City: {city}\nExcel: {excel_path}\nDB ID: {record['id']}\nDB Time: {record['created_at']}"
+            f"City: {city}\nExcel: {excel_path}\nDB ID: {record['id']}\nDB Time: {record['created_at']}\nTelegram: {'Sent' if telegram_ok else 'Failed'}"
         )
     except Exception as e:
         messagebox.showerror("Error", str(e))
@@ -63,7 +64,7 @@ def start_gui():
     global entry
     root = tk.Tk()
     root.title("Air Quality Downloader")
-    root.geometry("350x160")
+    root.geometry("350x180")
     label = tk.Label(root, text="Enter city name:", font=("Arial", 12))
     label.pack(pady=10)
     entry = tk.Entry(root, width=30, font=("Arial", 12))
@@ -73,9 +74,7 @@ def start_gui():
     btn.pack(pady=14)
     root.mainloop()
 
-# ── Entry Point ──────────────────────────────────────────────
 if __name__ == "__main__":
-    # If run with arguments, use CLI mode; else launch GUI
     parser = argparse.ArgumentParser(description="Air Quality Automation Pipeline")
     parser.add_argument(
         "--city",
@@ -84,8 +83,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     if args.city:
-        # Command-line mode
         run_pipeline(args.city)
     else:
-        # No --city argument, launch GUI
         start_gui()
