@@ -77,14 +77,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Send Air Quality notification to Telegram."
     )
-    parser.add_argument("--id", type=int, required=True, help="Record ID")
-    parser.add_argument("--created_at", type=str, required=True, help="Creation datetime")
-    parser.add_argument("--city", required=True, help="City name")
-    parser.add_argument("--country", required=True, help="Country name")
-    parser.add_argument("--pm10", type=float, required=True, help="PM10 value")
-    parser.add_argument("--pm2_5", type=float, required=True, help="PM2.5 value")
-    parser.add_argument("--co", type=float, required=True, help="Carbon Monoxide value")
-    parser.add_argument("--co2", type=float, required=True, help="Carbon Dioxide value")
+    parser.add_argument("id", type=int, required=True, help="Record ID")
+    parser.add_argument("created_at", type=str, required=True, help="Creation datetime")
+    parser.add_argument("city", required=True, help="City name")
+    parser.add_argument("country", required=True, help="Country name")
+    parser.add_argument("pm10", type=float, required=True, help="PM10 value")
+    parser.add_argument("pm2_5", type=float, required=True, help="PM2.5 value")
+    parser.add_argument("co", type=float, required=True, help="Carbon Monoxide value")
+    parser.add_argument("co2", type=float, required=True, help="Carbon Dioxide value")
 
     args = parser.parse_args()
 
