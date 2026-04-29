@@ -14,6 +14,7 @@
 import requests
 import os
 from dotenv import load_dotenv
+import argparse
 
 load_dotenv()
 
@@ -73,19 +74,49 @@ def send_telegram_notification(record: dict) -> bool:
 
 # ── Run this file directly to test ───────────────────────────
 if __name__ == "__main__":
-    test_record = {
-        "id": 99,
-        "created_at": "2025-01-15 10:30:00",
+    parser = argparse.ArgumentParser(
+        description="Send Air Quality notification to Telegram."
+    )
+    parser.add_argument("--id", type=int, required=True, help="Record ID")
+    parser.add_argument("--created_at", type=str, required=True, help="Creation datetime")
+    parser.add_argument("--city", required=True, help="City name")
+    parser.add_argument("--country", required=True, help="Country name")
+    parser.add_argument("--pm10", type=float, required=True, help="PM10 value")
+    parser.add_argument("--pm2_5", type=float, required=True, help="PM2.5 value")
+    parser.add_argument("--co", type=float, required=True, help="Carbon Monoxide value")
+    parser.add_argument("--co2", type=float, required=True, help="Carbon Dioxide value")
+
+    args = parser.parse_args()
+
+    record = {
+        "id": args.id,
+        "created_at": args.created_at,
         "data": {
-            "city": "KualaLumpur",
-            "country": "Malaysia",
+            "city": args.city,
+            "country": args.country,
             "air_quality": {
-                "pm10": [45.0],
-                "pm2_5": [25.0],
-                "carbon_monoxide": [0.5],
-                "carbon_dioxide": [400.0],
-                "scraped_at": "2025-01-15 10:30:00",
+                "pm10": [args.pm10],
+                "pm2_5": [args.pm2_5],
+                "carbon_monoxide": [args.co],
+                "carbon_dioxide": [args.co2],
+                "scraped_at": args.created_at,
             }
         }
     }
-    send_telegram_notification(test_record)
+    
+   # test_record = {
+    #    "id": 99,
+     #   "created_at": "2025-01-15 10:30:00",
+      #  "data": {
+       #     "city": "KualaLumpur",
+        #    "country": "Malaysia",
+         #   "air_quality": {
+          #      "pm10": [45.0],
+           #     "pm2_5": [25.0],
+            #    "carbon_monoxide": [0.5],
+             #   "carbon_dioxide": [400.0],
+              #  "scraped_at": "2025-01-15 10:30:00",
+    #        }
+     #   }
+   # }
+    send_telegram_notification(record)
